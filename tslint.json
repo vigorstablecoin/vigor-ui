@@ -1,6 +1,32 @@
 {
-  "extends": "tslint-config-airbnb",
+  "aextends": [
+    "tslint-config-prettier",
+    "tslint-eslint-rules"
+  ],
+  "extends": [
+    "tslint:latest",
+    "tslint-react",
+    "tslint-config-prettier"
+  ],
   "rules": {
-    "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case"
+    ],
+    "member-access": [
+      true,
+      "no-public"
+    ],
+    "no-console": [
+      false
+    ],
+    "ordered-imports": [
+      false
+    ],
+    "object-literal-sort-keys": [
+      false
+    ]
   }
 }

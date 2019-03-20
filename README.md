@@ -15,4 +15,5 @@ yarn             # install dependencies
 yarn start       # web development
 yart storybook   # component development
 yarn test        # tests
+yarn lint        # tslint warnings
 ```
