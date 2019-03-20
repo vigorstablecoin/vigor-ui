@@ -2,11 +2,14 @@
 
 Ui to test interactions with eosusd smart contract
 
-### Todo
+### Features
 
-- [ ] Scatter / eosjs integration
+- [x] base boilerplate with react, storybook, tests, typescript, tslint,..
+- [x] scatter / eosjs integration
+- [ ] support for different EOS networks and environments
+- [ ] state managements for scatter errors, attach, deattach,..
 - [ ] test.sh implementation
-- [ ] Nice UI
+- [ ] nice UI
 
 ### Usage
 
