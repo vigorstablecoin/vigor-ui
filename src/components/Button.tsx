@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-interface Props {
+interface IProps {
   /**
    * Click event handler
    * @default null
@@ -8,7 +8,7 @@ interface Props {
   onClick?: () => void;
 }
 
-const Button: React.SFC<Props> = ({ children, onClick }) => (
+const Button: React.SFC<IProps> = ({ children, onClick }) => (
   <button type="button" onClick={onClick}>
     {children}
   </button>
