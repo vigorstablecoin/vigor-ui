@@ -18,8 +18,11 @@
     ]
   },
   "dependencies": {
+    "eosjs": "^16.0.9",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "react-dom": "^16.8.4",
+    "scatterjs-core": "^2.7.16",
+    "scatterjs-plugin-eosjs": "^1.5.1"
   },
   "devDependencies": {
     "@storybook/addon-actions": "5.1.0-alpha.9",

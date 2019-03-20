@@ -2,10 +2,45 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import ScatterJS from 'scatterjs-core';
+import ScatterEOS from 'scatterjs-plugin-eosjs';
+import Eos from 'eosjs';
+
 import Button from './components/Button'
 
 class App extends Component {
+  componentDidMount() {
+
+    ScatterJS.plugins(new ScatterEOS());
+
+    const network = ScatterJS.Network.fromJson({
+      blockchain: 'eos',
+      chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
+      host: 'nodes.get-scatter.com',
+      port: 443,
+      protocol: 'https'
+    });
+
+    ScatterJS.connect('YourAppName', { network }).then((connected: any) => {
+      if (!connected) { return console.error('no scatter'); }
+
+      const eos = ScatterJS.eos(network, Eos);
+
+      ScatterJS.login().then((id: any) => {
+        if (!id) { return console.error('no identity'); }
+        const account = ScatterJS.account('eos');
+        const options = { authorization: [`${account.name}@${account.authority}`] };
+        eos.transfer(account.name, 'safetransfer', '0.0001 EOS', account.name, options).then((res: any) => {
+          console.log('sent: ', res);
+        }).catch((err: any) => {
+          console.error('error: ', err);
+        });
+      });
+    });
+  }
+
   render() {
+
     return (
       <div className="App">
         <header className="App-header">
@@ -13,16 +48,9 @@ class App extends Component {
           <p>
             Edit <code>src/App.tsx</code> and save to reload.
           </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-
-            <button>Click me</button>
-          </a>
+          <p>
+            Attaching to Scatter.. <Button>Click me</Button>
+          </p>
         </header>
       </div>
     );
