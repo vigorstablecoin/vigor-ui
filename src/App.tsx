@@ -8,7 +8,18 @@ import Eos from 'eosjs';
 
 import Button from './components/Button'
 
+function Balance(props: any) {
+  const balance = props
+  return (<span>
+    Balance: {balance.EOS} EOS _ {balance.EOSUSD} EOSUSD
+  </span>)
+}
+
 class App extends Component {
+  // initial unconnected state
+  state = {
+    balance: { EOS: '-', EOSUSD: '-' }
+  }
   componentDidMount() {
 
     ScatterJS.plugins(new ScatterEOS());
@@ -40,8 +51,18 @@ class App extends Component {
         const account = ScatterJS.account('eos');
         const options = { authorization: [`${account.name}@${account.authority}`] };
 
+        // NOTE: Use Promise.all or group actions
+        const res = await eos.getCurrencyBalance("eosio.token", 'testuser', 'EOS')
+        const res2 = await eos.getCurrencyBalance("eosusdeosusd", 'testuser', 'EOSUSD')
+
+        // clean up the eos api response
+        function format(response: any) {
+          return response[0].split(' ')[0]
+        }
+        this.setState({ balance: { EOS: format(res), EOSUSD: format(res2) } })
+
         // Custom token transaction, you need testuser already set up and filled with EOSUSD
-        const res = await eos.transaction({
+        const res3 = await eos.transaction({
           actions: [
             {
               account: "eosusdeosusd",
@@ -54,13 +75,13 @@ class App extends Component {
               data: {
                 from: account.name,
                 to: "eosio.token",
-                quantity: "0.0002 EOSUSD",
+                quantity: "0.0001 EOSUSD",
                 memo: "I'm a memo!"
               }
             }]
         });
 
-        console.log('r :', res);
+        console.log('r :', res[0].split(' ')[0], res2);
       });
     });
   }
@@ -73,6 +94,9 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <p>
             Edit <code>src/App.tsx</code> and save to reload.
+          </p>
+          <p>
+            <Balance {...this.state.balance} />
           </p>
           <p>
             Attaching to Scatter.. <Button>Click me</Button>
