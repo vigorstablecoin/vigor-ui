@@ -32,7 +32,6 @@ function reducer(state: any, action: any) {
       })
     
     case 'login':
-      login()
       // console.log('cc')
       return { ...state, account: { id: action.payload } }
     case 'logout':
