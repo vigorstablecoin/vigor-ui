@@ -21,6 +21,7 @@
       true,
       "no-public"
     ],
+    "jsx-no-lambda": false,
     "no-console": [
       false
     ],
