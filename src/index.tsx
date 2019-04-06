@@ -115,7 +115,7 @@ class TransactionApp extends React.Component<TransactionProps, TransactionState>
       const accountEosusd = await this.state.rpc.get_currency_balance('eosusdeosusd', 'testuser', 'EOSUSD')
 
       console.log('ee ', accountEosusd)
-      this.setState({ accountBalance })
+      this.setState({ accountBalance: accountEosusd })
     } catch (e) {
       console.warn(e)
     }
@@ -136,10 +136,10 @@ class TransactionApp extends React.Component<TransactionProps, TransactionState>
   public renderModalButton() {
     return (
       <p className='ual-btn-wrapper'>
-        <span
+        <Button
           role='button'
           onClick={this.props.ual.showModal}
-          className='ual-generic-button'>Show UAL Modal</span>
+          className='ual-generic-button'>Login</Button>
       </p>
     )
   }
@@ -158,11 +158,9 @@ class TransactionApp extends React.Component<TransactionProps, TransactionState>
     const { ual: { activeUser, activeAuthenticator, logout } } = this.props
     if (!!activeUser && !!activeAuthenticator) {
       return (
-        <p className='ual-btn-wrapper'>
-          <span className='ual-generic-button red' onClick={logout}>
+          <Button className='ual-generic-button red' onClick={logout}>
             {'Logout'}
-          </span>
-        </p>
+          </Button>
       )
     }
   }
@@ -171,18 +169,20 @@ class TransactionApp extends React.Component<TransactionProps, TransactionState>
     const { ual: { activeUser } } = this.props
     const { accountBalance, accountName } = this.state
     const modalButton = !activeUser && this.renderModalButton()
-    const loggedIn = accountName ? `Logged in as ${accountName}` : ''
+    const loggedIn = accountName ? `${accountName}` : ''
     const myBalance = accountBalance ? `Balance: ${accountBalance}` : ''
     const transferBtn = accountBalance && this.renderTransferButton()
     return (
       <div style={{ textAlign: 'center' }}>
         {modalButton}
-        <h3 className='ual-subtitle'>{loggedIn}</h3>
-        <h4 className='ual-subtitle'>{myBalance}</h4>
-        {transferBtn}
+        {loggedIn}
+        {/* <h4 className='ual-subtitle'>{myBalance}</h4> */}
+        {/* {transferBtn} */}
         {this.renderLogoutBtn()}
  
-        <Button icon="refresh" loading={false} minimal={true} />
+        <p>
+          Balance: {accountBalance || '--'} 
+        </p>
 
       </div>
     )
