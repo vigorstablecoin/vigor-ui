@@ -7,21 +7,15 @@ import { JsonRpc } from 'eosjs'
 import * as React from 'react'
 import ReactDOM from 'react-dom'
 
-// ts:ignore
+// Use .env to override
 const EXAMPLE_ENV = {
-  CHAIN_ID: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
-  RPC_PROTOCOL: 'https',
-  RPC_HOST: 'nodes.get-scatter.com',
-  RPC_PORT: '443',
+  CHAIN_NAME: process.env.REACT_APP_CHAIN_NAME || "Localnet",
+  CHAIN_ID: process.env.REACT_APP_CHAIN_ID || "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
+  RPC_PROTOCOL: process.env.REACT_APP_RPC_PROTOCOL || "http",
+  RPC_HOST: process.env.REACT_APP_RPC_HOST || "127.0.0.1",
+  RPC_PORT: process.env.REACT_APP_RPC_PORT || "8888",
 }
-
-// const EXAMPLE_ENV = {
-//   CHAIN_ID: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
-//   RPC_PROTOCOL: 'http',
-//   RPC_HOST: '127.0.0.1',
-//   RPC_PORT: '8888',
-// }
-
+console.log('ff ', EXAMPLE_ENV)
 
 const demoTransaction = {
   actions: [{
