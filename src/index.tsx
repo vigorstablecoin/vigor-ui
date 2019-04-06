@@ -7,6 +7,9 @@ import { JsonRpc } from 'eosjs'
 import * as React from 'react'
 import ReactDOM from 'react-dom'
 
+import '@blueprintjs/core/lib/css/blueprint.css'
+import { Button, Intent, Spinner } from "@blueprintjs/core";
+
 // Use .env to override
 const EXAMPLE_ENV = {
   CHAIN_NAME: process.env.REACT_APP_CHAIN_NAME || "Localnet",
@@ -178,6 +181,9 @@ class TransactionApp extends React.Component<TransactionProps, TransactionState>
         <h4 className='ual-subtitle'>{myBalance}</h4>
         {transferBtn}
         {this.renderLogoutBtn()}
+ 
+        <Button icon="refresh" loading={false} minimal={true} />
+
       </div>
     )
   }
