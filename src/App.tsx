@@ -1,110 +1,170 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react"
+import {
+  Button,
+  Intent,
+  Spinner,
+  Position,
+  Toaster,
+  Divider
+} from "@blueprintjs/core"
+// tslint:disable-next-line: no-submodule-imports
+import "@blueprintjs/core/lib/css/blueprint.css"
+import "./App.css"
 
-import ScatterJS from 'scatterjs-core';
-import ScatterEOS from 'scatterjs-plugin-eosjs';
-import Eos from 'eosjs';
+import { JsonRpc } from "eosjs"
 
-import Button from './components/Button'
+// import Button from './components/Button'
 
 function Balance(props: any) {
   const balance = props
-  return (<span>
-    Balance: {balance.EOS} EOS _ {balance.EOSUSD} EOSUSD
-  </span>)
+  return (
+    <span>
+      Balance: {balance.EOS} EOS _ {balance.EOSUSD} EOSUSD
+    </span>
+  )
 }
 
-class App extends Component {
-  // initial unconnected state
-  state = {
-    balance: { EOS: '-', EOSUSD: '-' }
+interface TransactionProps {
+  ual: any
+}
+
+interface TransactionState {
+  activeUser: any
+  contractState?: any
+  rpc: JsonRpc //JsonRpc // any
+}
+
+const defaultState = {
+  activeUser: null
+  // accountName: "",
+  // accountBalance: null
+}
+
+// NOTE: make me a function
+class App extends React.Component<TransactionProps, TransactionState> {
+  activeUser: any
+  constructor(props) {
+    super(props)
+    console.log("props: ", props)
+    const { protocol, host, port } = props.ual.chains[0].rpcEndpoints[0]
+    this.state = {
+      ...defaultState,
+      rpc: new JsonRpc(`${protocol}://${host}:${port}`)
+    }
+    this.updateAccountBalances = this.updateAccountBalances.bind(this)
   }
-  componentDidMount() {
 
-    ScatterJS.plugins(new ScatterEOS());
-    /// EOS mainnet
-    // const network = ScatterJS.Network.fromJson({
-    //   blockchain: 'eos',
-    //   chainId: 'aca376f206b8fc25a6ed44dbdc66547c36c6c33e3a119ffbeaef943642f0e906',
-    //   host: 'nodes.get-scatter.com',
-    //   port: 443,
-    //   protocol: 'https'
-    // });
+  // TODO: hooks useRef()
+  public componentDidUpdate() {
+    const {
+      ual: { activeUser }
+    } = this.props
+    if (activeUser && !this.state.activeUser) {
+      this.setState(
+        {
+          activeUser: {
+            ...this.activeUser,
+            accountName: activeUser.accountName
+          }
+        },
+        this.updateAccountBalances
+      )
+    } else if (!activeUser && this.state.activeUser) {
+      this.setState(defaultState)
+    }
+  }
 
-    // EOS Localnet testnet
-    const network = ScatterJS.Network.fromJson({
-      blockchain: 'eos',
-      chainId: 'cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f',
-      host: '127.0.0.1',
-      port: 8888,
-      protocol: 'http'
-    });
+  public async updateAccountBalances(): Promise<void> {
+    try {
+      const {
+        activeUser: { accountName }
+      } = this.state
 
-    ScatterJS.connect('YourAppName', { network }).then((connected: any) => {
-      if (!connected) { return console.error('no scatter'); }
-
-      const eos = ScatterJS.eos(network, Eos);
-
-      ScatterJS.login().then(async (id: any) => {
-        if (!id) { return console.error('no identity'); }
-        const account = ScatterJS.account('eos');
-        const options = { authorization: [`${account.name}@${account.authority}`] };
-
-        // NOTE: Use Promise.all or group actions
-        const res = await eos.getCurrencyBalance("eosio.token", 'testuser', 'EOS')
-        const res2 = await eos.getCurrencyBalance("eosusdeosusd", 'testuser', 'EOSUSD')
-
-        // clean up the eos api response
-        function format(response: any) {
-          return response[0].split(' ')[0]
+      const accountEos = await this.state.rpc.get_currency_balance(
+        "eosio.token",
+        accountName,
+        "EOS"
+      )
+      console.log(accountEos)
+      this.setState({
+        activeUser: {
+          ...this.state.activeUser,
+          balanceEos: accountEos
         }
-        this.setState({ balance: { EOS: format(res), EOSUSD: format(res2) } })
+      })
+      // lower_bound: -1, upper_bound: upperBound, limit: limit
+      // const res = await this.state.rpc.get_table_by_scope({code:'eosusdcom111', table: "stat"});
+      const res = await this.state.rpc.get_table_rows({
+        code: "eosusdcom111",
+        scope: "UZD",
+        table: "stat"
+      })
+      this.setState({
+        ...this.state,
+        contractState: JSON.stringify(res, null, 2)
+      })
+    } catch (e) {
+      console.warn(e)
+    }
+  }
 
-        // Custom token transaction, you need testuser already set up and filled with EOSUSD
-        const res3 = await eos.transaction({
-          actions: [
-            {
-              account: "eosusdeosusd",
-              name: "transfer",
-              authorization: [{
-                actor: account.name,
-                permission: account.authority
-              }
-              ],
-              data: {
-                from: account.name,
-                to: "eosio.token",
-                quantity: "0.0001 EOSUSD",
-                memo: "I'm a memo!"
-              }
-            }]
-        });
-
-        console.log('r :', res[0].split(' ')[0], res2);
-      });
-    });
+  public renderModalButton() {
+    return (
+      <p className="ual-btn-wrapper">
+        <Button
+          role="button"
+          onClick={this.props.ual.showModal}
+          className="ual-generic-button"
+        >
+          Login
+        </Button>
+      </p>
+    )
   }
 
   render() {
+    const {
+      ual: { logout }
+    } = this.props
+
+    const { activeUser } = this.state
 
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <p>
-            <Balance {...this.state.balance} />
-          </p>
-          <p>
-            Attaching to Scatter.. <Button>Click me</Button>
-          </p>
-        </header>
+        {activeUser ? (
+          <div>
+            {activeUser.accountName}
+            {activeUser.balanceEos || " -- EOS"}
+          </div>
+        ) : null}
+        <p className="ual-btn-wrapper">
+          <Button
+            onClick={() => {
+              console.log("o ", this.props.ual)
+              this.props.ual.showModal()
+            }}
+          >
+            Login
+          </Button>
+        </p>
+        <p>
+          <Button onClick={logout}>{"Logout"}</Button>
+        </p>
+        {this.state.contractState ? (
+          <div>
+            <h2>smart contract state</h2>
+            <pre>{this.state.contractState}</pre>
+          </div>
+        ) : null}
+        {/* Version: {this.props.appVersion} Network: {this.props.chainName} */}
+        {/* {modalButton} */}
+        <p>{/* <Balance {...this.state.balance} /> */}</p>
+        {/* <p>
+          Attaching to Scatter.. <Button>Click me</Button>
+        </p> */}
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
