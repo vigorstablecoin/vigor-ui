@@ -40,6 +40,12 @@ const defaultState = {
   // accountBalance: null
 }
 
+// passed as config?
+const supportedTokens = [
+  "eosio.token-EOS",
+  "everipediaiq-IQ"
+]
+
 // NOTE: make me a function
 class App extends React.Component<TransactionProps, TransactionState> {
   activeUser: any
@@ -80,29 +86,36 @@ class App extends React.Component<TransactionProps, TransactionState> {
         activeUser: { accountName }
       } = this.state
 
-      const accountEos = await this.state.rpc.get_currency_balance(
-        "eosio.token",
+      const [tokenContract, tokenSymbol] = supportedTokens[0].split('-')
+
+      // TODO: loop me
+      const balanceToken = await this.state.rpc.get_currency_balance(
+        tokenContract,
         accountName,
-        "EOS"
+        tokenSymbol
       )
-      console.log(accountEos)
+
+      console.log(JSON.stringify(balanceToken))
+      const [balance, symbol] = balanceToken[0].split(' ')
       this.setState({
         activeUser: {
           ...this.state.activeUser,
-          balanceEos: accountEos
+          balance: {...this.state.activeUser.balance, [symbol]:balance  }
         }
       })
+
+      // TODO: other function
       // lower_bound: -1, upper_bound: upperBound, limit: limit
       // const res = await this.state.rpc.get_table_by_scope({code:'eosusdcom111', table: "stat"});
-      const res = await this.state.rpc.get_table_rows({
-        code: "eosusdcom111",
-        scope: "UZD",
-        table: "stat"
-      })
-      this.setState({
-        ...this.state,
-        contractState: JSON.stringify(res, null, 2)
-      })
+      // const res = await this.state.rpc.get_table_rows({
+      //   code: "eosusdcom111",
+      //   scope: "UZD",
+      //   table: "stat"
+      // })
+      // this.setState({
+      //   ...this.state,
+      //   contractState: JSON.stringify(res, null, 2)
+      // })
     } catch (e) {
       console.warn(e)
     }
@@ -134,7 +147,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
         {activeUser ? (
           <div>
             {activeUser.accountName}
-            {activeUser.balanceEos || " -- EOS"}
+            {activeUser.balance && activeUser.balance.EOS || '--'}
           </div>
         ) : null}
         <p className="ual-btn-wrapper">
