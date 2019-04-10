@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import { supportedTokens } from "./lib/config"
 import {
   Button,
   Intent,
@@ -7,11 +8,12 @@ import {
   Toaster,
   Divider
 } from "@blueprintjs/core"
-// tslint:disable-next-line: no-submodule-imports
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "./App.css"
 
 import { JsonRpc } from "eosjs"
+import { NavBar } from "./components/NavBar"
+import { UserBalance } from "./components/UserBalance"
 
 // import Button from './components/Button'
 
@@ -29,22 +31,18 @@ interface TransactionProps {
 }
 
 interface TransactionState {
+  appName: string
   activeUser: any
   contractState?: any
   rpc: JsonRpc //JsonRpc // any
 }
 
 const defaultState = {
+  appName: "App",
   activeUser: null
   // accountName: "",
   // accountBalance: null
 }
-
-// passed as config?
-const supportedTokens = [
-  "eosio.token-EOS",
-  "everipediaiq-IQ"
-]
 
 // NOTE: make me a function
 class App extends React.Component<TransactionProps, TransactionState> {
@@ -86,21 +84,27 @@ class App extends React.Component<TransactionProps, TransactionState> {
         activeUser: { accountName }
       } = this.state
 
-      const [tokenContract, tokenSymbol] = supportedTokens[0].split('-')
+      supportedTokens.map(async t => {
+        try {
+          const [tokenContract, tokenSymbol] = t.split("-")
+          // TODO: loop me
+          const balanceToken = await this.state.rpc.get_currency_balance(
+            tokenContract,
+            accountName,
+            tokenSymbol
+          )
 
-      // TODO: loop me
-      const balanceToken = await this.state.rpc.get_currency_balance(
-        tokenContract,
-        accountName,
-        tokenSymbol
-      )
-
-      console.log(JSON.stringify(balanceToken))
-      const [balance, symbol] = balanceToken[0].split(' ')
-      this.setState({
-        activeUser: {
-          ...this.state.activeUser,
-          balance: {...this.state.activeUser.balance, [symbol]:balance  }
+          console.log(JSON.stringify(balanceToken))
+          const [balance, symbol] = balanceToken[0].split(" ")
+          this.setState({
+            activeUser: {
+              ...this.state.activeUser,
+              balance: { ...this.state.activeUser.balance, [symbol]: balance }
+            }
+          })
+        } catch (error) {
+          // NOTE: it raise an error if the user has not balance for a supported token
+          // console.warn(t, error)
         }
       })
 
@@ -140,29 +144,21 @@ class App extends React.Component<TransactionProps, TransactionState> {
       ual: { logout }
     } = this.props
 
-    const { activeUser } = this.state
+    const { activeUser, appName } = this.state
 
     return (
       <div className="App">
-        {activeUser ? (
-          <div>
-            {activeUser.accountName}
-            {activeUser.balance && activeUser.balance.EOS || '--'}
-          </div>
-        ) : null}
-        <p className="ual-btn-wrapper">
-          <Button
-            onClick={() => {
-              console.log("o ", this.props.ual)
-              this.props.ual.showModal()
-            }}
-          >
-            Login
-          </Button>
-        </p>
-        <p>
-          <Button onClick={logout}>{"Logout"}</Button>
-        </p>
+        <NavBar
+          appName={appName}
+          activeUser={activeUser}
+          onLogin={this.props.ual.showModal}
+          onLogout={logout}
+        />
+
+        <div style={{ width: 200 }}>
+          <UserBalance activeUser={activeUser} />
+        </div>
+
         {this.state.contractState ? (
           <div>
             <h2>smart contract state</h2>

@@ -6,19 +6,12 @@ import * as serviceWorker from "./serviceWorker"
 
 import { Scatter } from "ual-scatter"
 import { UALProvider, withUAL } from "ual-reactjs-renderer"
+import { networkConfig } from "./lib/config";
 
 const TestAppConsumer = withUAL(App)
 
 // NOTE: Use .env to override
-const EXAMPLE_ENV = {
-  CHAIN_NAME: process.env.REACT_APP_CHAIN_NAME || "Localnet",
-  CHAIN_ID:
-    process.env.REACT_APP_CHAIN_ID ||
-    "cf057bbfb72640471fd910bcb67639c22df9f92470936cddc1ade0e2f2e7dc4f",
-  RPC_PROTOCOL: process.env.REACT_APP_RPC_PROTOCOL || "http",
-  RPC_HOST: process.env.REACT_APP_RPC_HOST || "127.0.0.1",
-  RPC_PORT: process.env.REACT_APP_RPC_PORT || "8888"
-}
+const EXAMPLE_ENV = networkConfig
 console.log("EXAMPLE_ENV ", EXAMPLE_ENV)
 
 const exampleNet = {
