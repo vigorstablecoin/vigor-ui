@@ -1,10 +1,6 @@
 import React, { Component, useState, useEffect } from "react"
 import { supportedTokens } from "./lib/config"
-import {
-  Button,
-  InputGroup,
-  Label
-} from "@blueprintjs/core"
+import { Button, InputGroup, Label } from "@blueprintjs/core"
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "./App.css"
 
@@ -52,32 +48,32 @@ const defaultState = {
 function SendTest(props) {
   const [to, setTo] = useState("eosusdcom111")
   const [quantity, setQuantity] = useState("0.0001 EOS")
-  const [memo, setMemo] = useState("memo")
+  const [memo, setMemo] = useState("insurance")
 
   return (
     <>
-    <Label className="bp3-inline">
-      To
-      <InputGroup
-        leftIcon="filter"
-        onChange={input => setTo(input.currentTarget.value)}
-        defaultValue={to}
-      />
-    </Label>
-    <Label className="bp3-inline">
-      Quantity
-      <InputGroup
-        leftIcon="filter"
-        onChange={input => setQuantity(input.currentTarget.value)}
-        defaultValue={quantity}
-      />
+      <Label className="bp3-inline">
+        To
+        <InputGroup
+          leftIcon="filter"
+          onChange={input => setTo(input.currentTarget.value)}
+          defaultValue={to}
+        />
       </Label>
       <Label className="bp3-inline">
-      Memo
-      <InputGroup
-        leftIcon="filter"
-        onChange={input => setMemo(input.currentTarget.value)}
-        defaultValue={memo}
+        Quantity
+        <InputGroup
+          leftIcon="filter"
+          onChange={input => setQuantity(input.currentTarget.value)}
+          defaultValue={quantity}
+        />
+      </Label>
+      <Label className="bp3-inline">
+        Memo
+        <InputGroup
+          leftIcon="filter"
+          onChange={input => setMemo(input.currentTarget.value)}
+          defaultValue={memo}
         />
       </Label>
       <Button
@@ -97,6 +93,16 @@ function SendTest(props) {
   )
 }
 
+function AdminBox(props) {
+  return (
+    <div>
+      <h5>AdminBox</h5>
+      <Button onClick={() => props.updateOracle()}>Update Oracle Price</Button>
+      <Button onClick={() => props.doUpdate()}>doUpdate</Button>
+    </div>
+  )
+}
+
 // NOTE: make me a function
 class App extends React.Component<TransactionProps, TransactionState> {
   activeUser: any
@@ -110,6 +116,8 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
     this.transfer = this.transfer.bind(this)
+    // this.transfer = this.transfer.bind(this)
+
   }
 
   // TODO: hooks useRef()
@@ -165,15 +173,15 @@ class App extends React.Component<TransactionProps, TransactionState> {
       // TODO: other function
       // lower_bound: -1, upper_bound: upperBound, limit: limit
       // const res = await this.state.rpc.get_table_by_scope({code:'eosusdcom111', table: "stat"});
-      // const res = await this.state.rpc.get_table_rows({
-      //   code: "eosusdcom111",
-      //   scope: "UZD",
-      //   table: "stat"
-      // })
-      // this.setState({
-      //   ...this.state,
-      //   contractState: JSON.stringify(res, null, 2)
-      // })
+      const res = await this.state.rpc.get_table_rows({
+        code: "eosusdcom111",
+        scope: "UZD",
+        table: "stat"
+      })
+      this.setState({
+        ...this.state,
+        contractState: JSON.stringify(res, null, 2)
+      })
     } catch (e) {
       console.warn(e)
     }
@@ -288,6 +296,108 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }, 1000)
   }
 
+  //  cleos push action oracle111111 write '{"owner":"feeder111111", "value":63800}' -p feeder111111@active
+
+  public async updateOracle() {
+    const from = "feeder111111"
+    const contract = "oracle111111"
+
+    const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+      networkConfig.RPC_PORT
+    }`
+    const rpc = new JsonRpc(net, { fetch })
+    const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // feeder
+    const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+    const api = new Api({
+      rpc,
+      signatureProvider,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder()
+    })
+
+
+    // this.setState({ ...this.state, loading: true })
+    console.warn(`TX: ${net} ${contract} ${from} `)
+    const result = await api.transact(
+      {
+        actions: [
+          {
+            account: contract,
+            name: "write",
+            authorization: [
+              {
+                actor: from,
+                permission: "active"
+              }
+            ],
+            data: { owner: from, value: 63800 }
+          }
+        ]
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 30
+      }
+    )
+    console.dir(result)
+    // HACK: the tx isn't immediately effective
+    setTimeout(() => {
+      // this.updateAccountBalances()
+      // this.setState({ ...this.state, loading: false })
+    }, 1000)
+  }
+
+  // cleos push action eosusdcom111 doupdate '{}' -p eosusdcom111@active
+
+  public async doUpdate() {
+    const from = "eosusdcom111"
+    const contract = "eosusdcom111"
+
+    const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+      networkConfig.RPC_PORT
+    }`
+    const rpc = new JsonRpc(net, { fetch })
+    const defaultPrivateKey = '5K9sQVS3KAXe9ecBjs7PEmLXtE5mqvAVKRaytG3DN8aagWmMj4W' // eosusdcom111
+    const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+    const api = new Api({
+      rpc,
+      signatureProvider,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder()
+    })
+
+
+    // this.setState({ ...this.state, loading: true })
+    console.warn(`TX: ${net} ${contract} ${from} `)
+    const result = await api.transact(
+      {
+        actions: [
+          {
+            account: contract,
+            name: "doupdate",
+            authorization: [
+              {
+                actor: from,
+                permission: "active"
+              }
+            ],
+            data: {  }
+          }
+        ]
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 30
+      }
+    )
+    console.dir(result)
+    // HACK: the tx isn't immediately effective
+    setTimeout(() => {
+      // this.updateAccountBalances()
+      // this.setState({ ...this.state, loading: false })
+    }, 1000)
+  }
+
   render() {
     const {
       ual: { logout }
@@ -313,9 +423,11 @@ class App extends React.Component<TransactionProps, TransactionState> {
             <h2>smart contract state</h2>
             <pre>{this.state.contractState}</pre>
           </div>
-        ) : null}
+        ) : <div>Login to see smart contract status</div>}
 
         <SendTest loading={this.state.loading} transfer={this.transfer} />
+
+        <AdminBox updateOracle={this.updateOracle} doUpdate={this.doUpdate}/>
 
         {/* Version: {this.props.appVersion} Network: {this.props.chainName} */}
         {/* {modalButton} */}
