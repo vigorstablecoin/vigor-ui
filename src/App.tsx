@@ -1,12 +1,9 @@
-import React, { Component } from "react"
+import React, { Component, useState, useEffect } from "react"
 import { supportedTokens } from "./lib/config"
 import {
   Button,
-  Intent,
-  Spinner,
-  Position,
-  Toaster,
-  Divider
+  InputGroup,
+  Label
 } from "@blueprintjs/core"
 import "@blueprintjs/core/lib/css/blueprint.css"
 import "./App.css"
@@ -16,6 +13,12 @@ import { NavBar } from "./components/NavBar"
 import { UserBalance } from "./components/UserBalance"
 
 // import Button from './components/Button'
+
+/// HACK
+import { Api } from "eosjs"
+import { JsSignatureProvider } from "eosjs/dist/eosjs-jssig" // development only
+import { networkConfig } from "./lib/config"
+/// / HACK
 
 function Balance(props: any) {
   const balance = props
@@ -32,6 +35,7 @@ interface TransactionProps {
 
 interface TransactionState {
   appName: string
+  loading: boolean
   activeUser: any
   contractState?: any
   rpc: JsonRpc //JsonRpc // any
@@ -39,9 +43,58 @@ interface TransactionState {
 
 const defaultState = {
   appName: "App",
-  activeUser: null
+  activeUser: null,
+  loading: false
   // accountName: "",
   // accountBalance: null
+}
+
+function SendTest(props) {
+  const [to, setTo] = useState("eosusdcom111")
+  const [quantity, setQuantity] = useState("0.0001 EOS")
+  const [memo, setMemo] = useState("memo")
+
+  return (
+    <>
+    <Label className="bp3-inline">
+      To
+      <InputGroup
+        leftIcon="filter"
+        onChange={input => setTo(input.currentTarget.value)}
+        defaultValue={to}
+      />
+    </Label>
+    <Label className="bp3-inline">
+      Quantity
+      <InputGroup
+        leftIcon="filter"
+        onChange={input => setQuantity(input.currentTarget.value)}
+        defaultValue={quantity}
+      />
+      </Label>
+      <Label className="bp3-inline">
+      Memo
+      <InputGroup
+        leftIcon="filter"
+        onChange={input => setMemo(input.currentTarget.value)}
+        defaultValue={memo}
+        />
+      </Label>
+      <Button
+        loading={props.loading}
+        onClick={() => {
+          props.transfer({
+            contract: "eosio.token",
+            to: to,
+            quantity: quantity,
+            memo: memo
+          })
+        }}
+      >
+        Send
+      </Button>
+    </>
+  )
 }
 
 // NOTE: make me a function
@@ -56,6 +109,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
       rpc: new JsonRpc(`${protocol}://${host}:${port}`)
     }
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
+    this.transfer = this.transfer.bind(this)
   }
 
   // TODO: hooks useRef()
@@ -139,6 +193,101 @@ class App extends React.Component<TransactionProps, TransactionState> {
     )
   }
 
+  // BUG: message: "transaction declares authority '{"actor":"XXXX","permission":"active"}', but does not have signatures for it."
+  public async transferb() {
+    const { activeUser } = this.props.ual
+    const {
+      activeUser: { accountName }
+    } = this.state
+    console.log("a ", accountName, activeUser)
+    const tx = {
+      actions: [
+        {
+          // account: "eosusdeosusd",
+          account: "eosio.token",
+          name: "transfer",
+          authorization: [
+            {
+              actor: accountName,
+              permission: "active"
+            }
+          ],
+          data: {
+            from: accountName,
+            to: "eosio.token",
+            quantity: "0.0001 EOS",
+            memo: "insurance"
+          }
+        }
+      ]
+    }
+    // demoTransaction.actions[0].authorization[0].actor = accountName
+    // demoTransaction.actions[0].data.from = accountName
+    try {
+      const res = await activeUser.signTransaction(tx, { broadcast: true })
+      console.log("r", res)
+      // this.updateAccountBalance()
+    } catch (error) {
+      console.warn(error)
+    }
+  }
+
+  // BUG: it shouldn't use eosjs without Scatter
+  public async transfer({ contract, to, quantity, memo }) {
+    const {
+      activeUser: { accountName }
+    } = this.state
+    const from = accountName
+
+    const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+      networkConfig.RPC_PORT
+    }`
+    const rpc = new JsonRpc(net, { fetch })
+    const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
+    const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+    const api = new Api({
+      rpc,
+      signatureProvider,
+      textDecoder: new TextDecoder(),
+      textEncoder: new TextEncoder()
+    })
+
+    this.setState({ ...this.state, loading: true })
+    console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
+    const result = await api.transact(
+      {
+        actions: [
+          {
+            account: contract,
+            name: "transfer",
+            authorization: [
+              {
+                actor: from,
+                permission: "active"
+              }
+            ],
+            data: {
+              from: from,
+              to: to,
+              quantity: quantity,
+              memo: memo
+            }
+          }
+        ]
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 30
+      }
+    )
+    console.dir(result)
+    // HACK: the tx isn't immediately effective
+    setTimeout(() => {
+      this.updateAccountBalances()
+      this.setState({ ...this.state, loading: false })
+    }, 1000)
+  }
+
   render() {
     const {
       ual: { logout }
@@ -165,6 +314,9 @@ class App extends React.Component<TransactionProps, TransactionState> {
             <pre>{this.state.contractState}</pre>
           </div>
         ) : null}
+
+        <SendTest loading={this.state.loading} transfer={this.transfer} />
+
         {/* Version: {this.props.appVersion} Network: {this.props.chainName} */}
         {/* {modalButton} */}
         <p>{/* <Balance {...this.state.balance} /> */}</p>
