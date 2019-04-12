@@ -265,12 +265,27 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // BUG: it shouldn't use eosjs without Scatter
-  async transfer({ contract, to, quantity, memo }) {
+  async transfer({ to, quantity, memo }) {
     try {
       const {
         activeUser: { accountName }
       } = this.state
       const from = accountName
+
+      // NOTE: move me in utils ??
+      function symbolToContract(quantity) {
+        const symbolWanted = quantity.split(" ")[1]
+        const found = supportedTokens
+          .map(el => el.split("-"))
+          .filter(([contract, symbol]) => {
+            return symbolWanted === symbol
+          })
+        return found[0]
+          ? found[0][0]
+          : new Error(`Token ${symbolWanted} not supported`)
+      }
+
+      const contract = symbolToContract(quantity)
 
       const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
         networkConfig.RPC_PORT
@@ -321,7 +336,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
       }, 1000)
     } catch (error) {
       this.setState({ ...this.state, loading: false })
-      console.error('ERROR: ', error)
+      console.error("ERROR: ", error)
     }
   }
 
