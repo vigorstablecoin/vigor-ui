@@ -78,9 +78,7 @@ function SendTest(props) {
           defaultValue={memo}
         />
       </Label>
-      <p>
-        insurance, collateral, payoff debt, borrow
-      </p>
+      <p>insurance, collateral, payoff debt, borrow</p>
       <Button
         loading={props.loading}
         onClick={() => {
@@ -113,7 +111,9 @@ function AdminBox(props) {
   return (
     <div>
       <h2>Admin demo tools</h2>
-      <Button onClick={() => props.updateOracle(value)}>Update Oracle Price</Button>
+      <Button onClick={() => props.updateOracle(value)}>
+        Update Oracle Price
+      </Button>
       <Button onClick={() => props.doUpdate()}>doUpdate</Button>
       <Label className="bp3-inline">
         Value
@@ -131,7 +131,9 @@ function UserStats(props) {
   return (
     <div>
       <h2>User smart contract stats</h2>
-      <div>{props.userStats ? <pre>{props.userStats}</pre> : null}</div>
+      <div style={{ width: 200 }}>
+        {props.userStats ? <p>{props.userStats}</p> : null}
+      </div>
     </div>
   )
 }
@@ -367,10 +369,9 @@ class App extends React.Component<TransactionProps, TransactionState> {
       const {
         activeUser: { accountName }
       } = this.state
-      const contract = 'eosusdcom111' 
+      const contract = "eosusdcom111"
       const to = accountName
       const from = accountName
-
 
       // // NOTE: move me in utils ??
       // function symbolToContract(quantity) {
@@ -584,7 +585,11 @@ class App extends React.Component<TransactionProps, TransactionState> {
             <UserBalance activeUser={activeUser} />
           </div>
           <div>
-            <SendTest loading={this.state.loading} transfer={this.transfer} assetout={this.assetout} />
+            <SendTest
+              loading={this.state.loading}
+              transfer={this.transfer}
+              assetout={this.assetout}
+            />
           </div>
           <div>
             <AdminBox
@@ -593,14 +598,20 @@ class App extends React.Component<TransactionProps, TransactionState> {
             />
           </div>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-around" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            marginTop: -4
+          }}
+        >
           <div />
           <UserStats userStats={this.state.userStats} />
           <div>
             <h2>Global smart contract stats</h2>
             {this.state.contractState ? (
-              <div>
-                <pre>{this.state.contractState}</pre>
+              <div style={{ width: 200 }}>
+                <p>{this.state.contractState}</p>
               </div>
             ) : null}
           </div>
