@@ -78,6 +78,9 @@ function SendTest(props) {
           defaultValue={memo}
         />
       </Label>
+      <p>
+        insurance, collateral, payoff debt
+      </p>
       <Button
         loading={props.loading}
         onClick={() => {
