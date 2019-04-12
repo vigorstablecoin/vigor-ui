@@ -35,14 +35,16 @@ function UserBalance({ activeUser }) {
 
           {activeUser && activeUser.balance ? (
             <>
-              {Object.keys(activeUser.balance).map(token => (
-                <tr key={token}>
-                  <td style={{ float: "right" }}>
-                    {activeUser.balance[token]}
-                  </td>
-                  <td>{token}</td>
-                </tr>
-              ))}
+              {Object.keys(activeUser.balance)
+                .sort()
+                .map(token => (
+                  <tr key={token}>
+                    <td style={{ float: "right" }}>
+                      {activeUser.balance[token]}
+                    </td>
+                    <td>{token}</td>
+                  </tr>
+                ))}
             </>
           ) : null}
         </tbody>
