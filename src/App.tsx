@@ -51,10 +51,6 @@ function SendTest(props) {
   const [quantity, setQuantity] = useState("0.0001 EOS")
   const [memo, setMemo] = useState("insurance")
 
-  // HACK: every token should pick its contract
-  const contract =
-    quantity.split(" ")[1] === "EOS" ? "eosio.token" : "dummytokens1"
-
   return (
     <>
       <h2>Send test</h2>
@@ -86,7 +82,6 @@ function SendTest(props) {
         loading={props.loading}
         onClick={() => {
           props.transfer({
-            contract: contract,
             to: to,
             quantity: quantity,
             memo: memo
