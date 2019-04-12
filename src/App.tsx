@@ -121,7 +121,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // TODO: hooks useRef()
-  public componentDidUpdate() {
+  componentDidUpdate() {
     const {
       ual: { activeUser }
     } = this.props
@@ -140,7 +140,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
   }
 
-  public async updateAccountBalances(): Promise<void> {
+  async updateAccountBalances(): Promise<void> {
     try {
       const {
         activeUser: { accountName }
@@ -187,7 +187,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
   }
 
-  public renderModalButton() {
+  renderModalButton() {
     return (
       <p className="ual-btn-wrapper">
         <Button
@@ -202,7 +202,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // BUG: message: "transaction declares authority '{"actor":"XXXX","permission":"active"}', but does not have signatures for it."
-  public async transferb() {
+  async transferb() {
     const { activeUser } = this.props.ual
     const {
       activeUser: { accountName }
@@ -241,7 +241,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // BUG: it shouldn't use eosjs without Scatter
-  public async transfer({ contract, to, quantity, memo }) {
+  async transfer({ contract, to, quantity, memo }) {
     const {
       activeUser: { accountName }
     } = this.state
@@ -298,7 +298,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
 
   //  cleos push action oracle111111 write '{"owner":"feeder111111", "value":63800}' -p feeder111111@active
 
-  public async updateOracle() {
+  async updateOracle() {
     const from = "feeder111111"
     const contract = "oracle111111"
 
@@ -349,7 +349,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
 
   // cleos push action eosusdcom111 doupdate '{}' -p eosusdcom111@active
 
-  public async doUpdate() {
+  async doUpdate() {
     const from = "eosusdcom111"
     const contract = "eosusdcom111"
 
