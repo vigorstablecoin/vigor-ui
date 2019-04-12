@@ -416,7 +416,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
               ],
               data: {
                 usern: to,
-                quantity: quantity,
+                assetout: quantity,
                 memo: memo
               }
             }
