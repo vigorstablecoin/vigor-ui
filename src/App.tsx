@@ -266,58 +266,63 @@ class App extends React.Component<TransactionProps, TransactionState> {
 
   // BUG: it shouldn't use eosjs without Scatter
   async transfer({ contract, to, quantity, memo }) {
-    const {
-      activeUser: { accountName }
-    } = this.state
-    const from = accountName
+    try {
+      const {
+        activeUser: { accountName }
+      } = this.state
+      const from = accountName
 
-    const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
-      networkConfig.RPC_PORT
-    }`
-    const rpc = new JsonRpc(net, { fetch })
-    const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
-    const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
-    const api = new Api({
-      rpc,
-      signatureProvider,
-      textDecoder: new TextDecoder(),
-      textEncoder: new TextEncoder()
-    })
+      const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+        networkConfig.RPC_PORT
+      }`
+      const rpc = new JsonRpc(net, { fetch })
+      const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
+      const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+      const api = new Api({
+        rpc,
+        signatureProvider,
+        textDecoder: new TextDecoder(),
+        textEncoder: new TextEncoder()
+      })
 
-    this.setState({ ...this.state, loading: true })
-    console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
-    const result = await api.transact(
-      {
-        actions: [
-          {
-            account: contract,
-            name: "transfer",
-            authorization: [
-              {
-                actor: from,
-                permission: "active"
+      this.setState({ ...this.state, loading: true })
+      console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
+      const result = await api.transact(
+        {
+          actions: [
+            {
+              account: contract,
+              name: "transfer",
+              authorization: [
+                {
+                  actor: from,
+                  permission: "active"
+                }
+              ],
+              data: {
+                from: from,
+                to: to,
+                quantity: quantity,
+                memo: memo
               }
-            ],
-            data: {
-              from: from,
-              to: to,
-              quantity: quantity,
-              memo: memo
             }
-          }
-        ]
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 30
-      }
-    )
-    console.dir(result)
-    // HACK: the tx isn't immediately effective
-    setTimeout(() => {
-      this.updateAccountBalances()
+          ]
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 30
+        }
+      )
+      console.dir(result)
+      // HACK: the tx isn't immediately effective
+      setTimeout(() => {
+        this.updateAccountBalances()
+        this.setState({ ...this.state, loading: false })
+      }, 1000)
+    } catch (error) {
       this.setState({ ...this.state, loading: false })
-    }, 1000)
+      console.error('ERROR: ', error)
+    }
   }
 
   // cleos get table eosusdcom111 eosusdcom111 user
@@ -477,15 +482,13 @@ class App extends React.Component<TransactionProps, TransactionState> {
         <div style={{ display: "flex", justifyContent: "space-around" }}>
           <div />
           <UserStats userStats={this.state.userStats} />
-          <div >
-          <h2>Global smart contract stats</h2>
-          {this.state.contractState ? (
-            <div>
-              <pre>{this.state.contractState}</pre>
-            </div>
-          ) : 
-            null
-          }
+          <div>
+            <h2>Global smart contract stats</h2>
+            {this.state.contractState ? (
+              <div>
+                <pre>{this.state.contractState}</pre>
+              </div>
+            ) : null}
           </div>
         </div>
 
