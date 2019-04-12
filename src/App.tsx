@@ -57,6 +57,7 @@ function SendTest(props) {
 
   return (
     <>
+      <h2>Send test</h2>
       <Label className="bp3-inline">
         To
         <InputGroup
@@ -112,11 +113,7 @@ function UserStats(props) {
   return (
     <div>
       <h2>User smart contract stats</h2>
-      <div>
-        {props.userStats ? (<pre>
-          {props.userStats}
-        </pre>) : null}
-      </div>
+      <div>{props.userStats ? <pre>{props.userStats}</pre> : null}</div>
     </div>
   )
 }
@@ -209,7 +206,6 @@ class App extends React.Component<TransactionProps, TransactionState> {
         ...this.state,
         userStats: JSON.stringify(res2, null, 2)
       })
-      
     } catch (e) {
       console.warn(e)
     }
@@ -324,13 +320,12 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }, 1000)
   }
 
-  // cleos get table eosusdcom111 eosusdcom111 user 
+  // cleos get table eosusdcom111 eosusdcom111 user
   // async updateUserStats() {
   //   try {
   //     const {
   //       activeUser: { accountName }
   //     } = this.state
-
 
   //     // TODO: other function
   //     // lower_bound: -1, upper_bound: upperBound, limit: limit
@@ -465,24 +460,34 @@ class App extends React.Component<TransactionProps, TransactionState> {
           onLogout={logout}
         />
 
-        <div style={{ width: 200 }}>
-          <UserBalance activeUser={activeUser} />
-        </div>
-
-        <SendTest loading={this.state.loading} transfer={this.transfer} />
-
-        <AdminBox updateOracle={this.updateOracle} doUpdate={this.doUpdate} />
-
-        <UserStats userStats={this.state.userStats}/>
-
-        <h2>Global smart contract stats</h2>
-        {this.state.contractState ? (
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
           <div>
-            <pre>{this.state.contractState}</pre>
+            <UserBalance activeUser={activeUser} />
           </div>
-        ) : (
-          <div>Login to see smart contract status</div>
-        )}
+          <div>
+            <SendTest loading={this.state.loading} transfer={this.transfer} />
+          </div>
+          <div>
+            <AdminBox
+              updateOracle={this.updateOracle}
+              doUpdate={this.doUpdate}
+            />
+          </div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <div />
+          <UserStats userStats={this.state.userStats} />
+          <div >
+          <h2>Global smart contract stats</h2>
+          {this.state.contractState ? (
+            <div>
+              <pre>{this.state.contractState}</pre>
+            </div>
+          ) : 
+            null
+          }
+          </div>
+        </div>
 
         {/* Version: {this.props.appVersion} Network: {this.props.chainName} */}
         {/* {modalButton} */}
