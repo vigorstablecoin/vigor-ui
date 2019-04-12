@@ -109,11 +109,20 @@ function SendTest(props) {
 }
 
 function AdminBox(props) {
+  const [value, setValue] = useState("63800")
   return (
     <div>
       <h2>Admin demo tools</h2>
-      <Button onClick={() => props.updateOracle()}>Update Oracle Price</Button>
+      <Button onClick={() => props.updateOracle(value)}>Update Oracle Price</Button>
       <Button onClick={() => props.doUpdate()}>doUpdate</Button>
+      <Label className="bp3-inline">
+        Value
+        <InputGroup
+          leftIcon="filter"
+          onChange={input => setValue(input.currentTarget.value)}
+          defaultValue={value}
+        />
+      </Label>
     </div>
   )
 }
@@ -139,6 +148,8 @@ class App extends React.Component<TransactionProps, TransactionState> {
       rpc: new JsonRpc(`${protocol}://${host}:${port}`)
     }
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
+    this.updateOracle = this.updateOracle.bind(this)
+
     this.transfer = this.transfer.bind(this)
     this.assetout = this.assetout.bind(this)
   }
@@ -452,7 +463,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
   // }
 
   //  cleos push action oracle111111 write '{"owner":"feeder111111", "value":63800}' -p feeder111111@active
-  async updateOracle() {
+  async updateOracle(value) {
     const from = "feeder111111"
     const contract = "oracle111111"
 
@@ -470,7 +481,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     })
 
     // this.setState({ ...this.state, loading: true })
-    console.warn(`TX: ${net} ${contract} ${from} `)
+    console.warn(`TX: ${net} ${contract} ${from} ${value}`)
     const result = await api.transact(
       {
         actions: [
@@ -483,7 +494,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
                 permission: "active"
               }
             ],
-            data: { owner: from, value: 63800 }
+            data: { owner: from, value: value }
           }
         ]
       },
@@ -495,7 +506,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     console.dir(result)
     // HACK: the tx isn't immediately effective
     setTimeout(() => {
-      // this.updateAccountBalances()
+      this.updateAccountBalances()
       // this.setState({ ...this.state, loading: false })
     }, 1000)
   }
