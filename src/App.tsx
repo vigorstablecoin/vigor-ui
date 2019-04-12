@@ -79,7 +79,7 @@ function SendTest(props) {
         />
       </Label>
       <p>
-        insurance, collateral, payoff debt
+        insurance, collateral, payoff debt, borrow
       </p>
       <Button
         loading={props.loading}
@@ -92,6 +92,17 @@ function SendTest(props) {
         }}
       >
         Send
+      </Button>
+      <Button
+        loading={props.loading}
+        onClick={() => {
+          props.assetout({
+            quantity: quantity,
+            memo: memo
+          })
+        }}
+      >
+        Assetout
       </Button>
     </>
   )
@@ -129,7 +140,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
     this.transfer = this.transfer.bind(this)
-    // this.transfer = this.transfer.bind(this)
+    this.assetout = this.assetout.bind(this)
   }
 
   // TODO: hooks useRef()
@@ -338,6 +349,84 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
   }
 
+  // BUG: it shouldn't use eosjs without Scatter
+  async assetout({ quantity, memo }) {
+    try {
+      const {
+        activeUser: { accountName }
+      } = this.state
+      const contract = 'eosusdcom111' 
+      const to = accountName
+      const from = accountName
+
+
+      // // NOTE: move me in utils ??
+      // function symbolToContract(quantity) {
+      //   const symbolWanted = quantity.split(" ")[1]
+      //   const found = supportedTokens
+      //     .map(el => el.split("-"))
+      //     .filter(([contract, symbol]) => {
+      //       return symbolWanted === symbol
+      //     })
+      //   return found[0]
+      //     ? found[0][0]
+      //     : new Error(`Token ${symbolWanted} not supported`)
+      // }
+
+      // const contract = symbolToContract(quantity)
+
+      const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+        networkConfig.RPC_PORT
+      }`
+      const rpc = new JsonRpc(net, { fetch })
+      const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
+      const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+      const api = new Api({
+        rpc,
+        signatureProvider,
+        textDecoder: new TextDecoder(),
+        textEncoder: new TextEncoder()
+      })
+
+      this.setState({ ...this.state, loading: true })
+      console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
+      const result = await api.transact(
+        {
+          actions: [
+            {
+              account: contract,
+              name: "assetout",
+              authorization: [
+                {
+                  actor: from,
+                  permission: "active"
+                }
+              ],
+              data: {
+                usern: to,
+                quantity: quantity,
+                memo: memo
+              }
+            }
+          ]
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 30
+        }
+      )
+      console.dir(result)
+      // HACK: the tx isn't immediately effective
+      setTimeout(() => {
+        this.updateAccountBalances()
+        this.setState({ ...this.state, loading: false })
+      }, 1000)
+    } catch (error) {
+      this.setState({ ...this.state, loading: false })
+      console.error("ERROR: ", error)
+    }
+  }
+
   // cleos get table eosusdcom111 eosusdcom111 user
   // async updateUserStats() {
   //   try {
@@ -483,7 +572,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
             <UserBalance activeUser={activeUser} />
           </div>
           <div>
-            <SendTest loading={this.state.loading} transfer={this.transfer} />
+            <SendTest loading={this.state.loading} transfer={this.transfer} assetout={this.assetout} />
           </div>
           <div>
             <AdminBox
