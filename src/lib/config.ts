@@ -4,7 +4,7 @@ const supportedTokens = (() => {
     Mainnet: ["eosio.token-EOS", "everipediaiq-IQ"],
     Testnet: [
       "eosio.token-EOS",
-      "eosusdcom111-UVD",
+      "eosusdcom111-UZD",
       "dummytokens1-IQ",
       "dummytokens1-UTG",
       "dummytokens1-PTI",
