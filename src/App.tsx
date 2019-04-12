@@ -34,6 +34,7 @@ interface TransactionState {
   loading: boolean
   activeUser: any
   contractState?: any
+  userStats?: any
   rpc: JsonRpc //JsonRpc // any
 }
 
@@ -51,7 +52,8 @@ function SendTest(props) {
   const [memo, setMemo] = useState("insurance")
 
   // HACK: every token should pick its contract
-  const contract = (quantity.split(' ')[1] === "EOS" ? "eosio.token" : "dummytokens1")
+  const contract =
+    quantity.split(" ")[1] === "EOS" ? "eosio.token" : "dummytokens1"
 
   return (
     <>
@@ -99,9 +101,22 @@ function SendTest(props) {
 function AdminBox(props) {
   return (
     <div>
-      <h5>AdminBox</h5>
+      <h2>Admin demo tools</h2>
       <Button onClick={() => props.updateOracle()}>Update Oracle Price</Button>
       <Button onClick={() => props.doUpdate()}>doUpdate</Button>
+    </div>
+  )
+}
+
+function UserStats(props) {
+  return (
+    <div>
+      <h2>User smart contract stats</h2>
+      <div>
+        {props.userStats ? (<pre>
+          {props.userStats}
+        </pre>) : null}
+      </div>
     </div>
   )
 }
@@ -120,7 +135,6 @@ class App extends React.Component<TransactionProps, TransactionState> {
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
     this.transfer = this.transfer.bind(this)
     // this.transfer = this.transfer.bind(this)
-
   }
 
   // TODO: hooks useRef()
@@ -185,6 +199,17 @@ class App extends React.Component<TransactionProps, TransactionState> {
         ...this.state,
         contractState: JSON.stringify(res, null, 2)
       })
+
+      const res2 = await this.state.rpc.get_table_rows({
+        code: "eosusdcom111",
+        scope: "eosusdcom111",
+        table: "user"
+      })
+      this.setState({
+        ...this.state,
+        userStats: JSON.stringify(res2, null, 2)
+      })
+      
     } catch (e) {
       console.warn(e)
     }
@@ -299,8 +324,32 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }, 1000)
   }
 
-  //  cleos push action oracle111111 write '{"owner":"feeder111111", "value":63800}' -p feeder111111@active
+  // cleos get table eosusdcom111 eosusdcom111 user 
+  // async updateUserStats() {
+  //   try {
+  //     const {
+  //       activeUser: { accountName }
+  //     } = this.state
 
+
+  //     // TODO: other function
+  //     // lower_bound: -1, upper_bound: upperBound, limit: limit
+  //     // const res = await this.state.rpc.get_table_by_scope({code:'eosusdcom111', table: "stat"});
+  //     const res = await this.state.rpc.get_table_rows({
+  //       code: "eosusdcom111",
+  //       scope: "eosusdcom111",
+  //       table: "user"
+  //     })
+  //     this.setState({
+  //       ...this.state,
+  //       userStats: JSON.stringify(res, null, 2)
+  //     })
+  //   } catch (e) {
+  //     console.warn(e)
+  //   }
+  // }
+
+  //  cleos push action oracle111111 write '{"owner":"feeder111111", "value":63800}' -p feeder111111@active
   async updateOracle() {
     const from = "feeder111111"
     const contract = "oracle111111"
@@ -317,7 +366,6 @@ class App extends React.Component<TransactionProps, TransactionState> {
       textDecoder: new TextDecoder(),
       textEncoder: new TextEncoder()
     })
-
 
     // this.setState({ ...this.state, loading: true })
     console.warn(`TX: ${net} ${contract} ${from} `)
@@ -360,7 +408,8 @@ class App extends React.Component<TransactionProps, TransactionState> {
       networkConfig.RPC_PORT
     }`
     const rpc = new JsonRpc(net, { fetch })
-    const defaultPrivateKey = '5K9sQVS3KAXe9ecBjs7PEmLXtE5mqvAVKRaytG3DN8aagWmMj4W' // eosusdcom111
+    const defaultPrivateKey =
+      "5K9sQVS3KAXe9ecBjs7PEmLXtE5mqvAVKRaytG3DN8aagWmMj4W" // eosusdcom111
     const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
     const api = new Api({
       rpc,
@@ -368,7 +417,6 @@ class App extends React.Component<TransactionProps, TransactionState> {
       textDecoder: new TextDecoder(),
       textEncoder: new TextEncoder()
     })
-
 
     // this.setState({ ...this.state, loading: true })
     console.warn(`TX: ${net} ${contract} ${from} `)
@@ -384,7 +432,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
                 permission: "active"
               }
             ],
-            data: {  }
+            data: {}
           }
         ]
       },
@@ -421,16 +469,20 @@ class App extends React.Component<TransactionProps, TransactionState> {
           <UserBalance activeUser={activeUser} />
         </div>
 
-        {this.state.contractState ? (
-          <div>
-            <h2>smart contract state</h2>
-            <pre>{this.state.contractState}</pre>
-          </div>
-        ) : <div>Login to see smart contract status</div>}
-
         <SendTest loading={this.state.loading} transfer={this.transfer} />
 
-        <AdminBox updateOracle={this.updateOracle} doUpdate={this.doUpdate}/>
+        <AdminBox updateOracle={this.updateOracle} doUpdate={this.doUpdate} />
+
+        <UserStats userStats={this.state.userStats}/>
+
+        <h2>Global smart contract stats</h2>
+        {this.state.contractState ? (
+          <div>
+            <pre>{this.state.contractState}</pre>
+          </div>
+        ) : (
+          <div>Login to see smart contract status</div>
+        )}
 
         {/* Version: {this.props.appVersion} Network: {this.props.chainName} */}
         {/* {modalButton} */}
