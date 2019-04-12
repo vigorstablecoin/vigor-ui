@@ -149,6 +149,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     }
     this.updateAccountBalances = this.updateAccountBalances.bind(this)
     this.updateOracle = this.updateOracle.bind(this)
+    this.doUpdate = this.doUpdate.bind(this)
 
     this.transfer = this.transfer.bind(this)
     this.assetout = this.assetout.bind(this)
@@ -557,7 +558,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
     console.dir(result)
     // HACK: the tx isn't immediately effective
     setTimeout(() => {
-      // this.updateAccountBalances()
+      this.updateAccountBalances()
       // this.setState({ ...this.state, loading: false })
     }, 1000)
   }
