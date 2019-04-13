@@ -49,7 +49,7 @@ const defaultState = {
 function SendTest(props) {
   const [to, setTo] = useState("eosusdcom111")
   const [quantity, setQuantity] = useState("0.0001 EOS")
-  const [memo, setMemo] = useState("insurance")
+  const [memo, setMemo] = useState("support")
 
   return (
     <>
@@ -78,7 +78,7 @@ function SendTest(props) {
           defaultValue={memo}
         />
       </Label>
-      <p>insurance, collateral, payoff debt, borrow</p>
+      <p>support, collateral, payoff debt, borrow</p>
       <Button
         loading={props.loading}
         onClick={() => {
@@ -271,7 +271,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
             from: accountName,
             to: "eosio.token",
             quantity: "0.0001 EOS",
-            memo: "insurance"
+            memo: "support"
           }
         }
       ]
