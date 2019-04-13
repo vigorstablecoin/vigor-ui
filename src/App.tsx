@@ -213,7 +213,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
       const res = await this.state.rpc.get_table_rows({
         code: "eosusdcom111",
         scope: "UZD",
-        table: "stat"
+        table: "globalstats"
       })
       this.setState({
         ...this.state,
