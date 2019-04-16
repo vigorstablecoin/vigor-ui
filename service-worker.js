@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/eosusd-ui/precache-manifest.66b4f4fd519378e10e4bf725599e6789.js"
+  "/eosusd-ui/precache-manifest.d7a016c876d90c79f7e2fe96c75b69cd.js"
 );
 
 workbox.clientsClaim();
