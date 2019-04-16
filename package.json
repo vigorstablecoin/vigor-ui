@@ -5,7 +5,7 @@
   "homepage": "https://eosusd.github.io/eosusd-ui",
   "scripts": {
     "start": "react-scripts start",
-    "predeploy": "react-scripts build",
+    "predeploy": "REACT_APP_CHAIN_NAME=Mainnet react-scripts build",
     "deploy": "gh-pages -d build",
     "build-storybook": "build-storybook -s public",
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
