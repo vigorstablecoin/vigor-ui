@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "react-scripts start",
+    "build": "react-scripts build",
     "build-storybook": "build-storybook -s public",
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "now-build": "node ../../scripts/bootstrap --core && yarn run build-storybook --quiet",
