@@ -28,7 +28,7 @@
     "scatterjs-core": "^2.7.16",
     "scatterjs-plugin-eosjs": "^1.5.1",
     "ual-reactjs-renderer": "^0.1.1",
-    "ual-scatter": "^0.1.0"
+    "ual-scatter": "git://github.com/EOSIO/ual-scatter.git#develop"
   },
   "devDependencies": {
     "@storybook/addon-actions": "5.1.0-alpha.9",
