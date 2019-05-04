@@ -211,17 +211,15 @@ class App extends React.Component<TransactionProps, TransactionState> {
       // lower_bound: -1, upper_bound: upperBound, limit: limit
       // const res = await this.state.rpc.get_table_by_scope({code:'eosusdcom111', table: "stat"});
 
-      //// Commented because of:
-      //// Error: Stream unexpectedly ended; unable to unpack field 'latepayments' of struct 'user_s'
-      // const res = await this.state.rpc.get_table_rows({
-      //   code: "eosusdcom111",
-      //   scope: "UZD",
-      //   table: "globalstats"
-      // })
-      // this.setState({
-      //   ...this.state,
-      //   contractState: JSON.stringify(res, null, 2)
-      // })
+      const res = await this.state.rpc.get_table_rows({
+        code: "eosusdcom111",
+        scope: "UZD",
+        table: "globals"
+      })
+      this.setState({
+        ...this.state,
+        contractState: JSON.stringify(res, null, 2)
+      })
 
       const res2 = await this.state.rpc.get_table_rows({
         code: "eosusdcom111",
