@@ -15,6 +15,7 @@ Ui to test interactions with eosusd smart contract
 
 ```
 yarn             # install dependencies
+yarn run build-ual-scatter # install development ual-scatter
 yarn start       # web development
 yart storybook   # component development
 yarn test        # tests
