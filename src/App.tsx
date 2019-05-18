@@ -250,7 +250,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // BUG: message: "transaction declares authority '{"actor":"XXXX","permission":"active"}', but does not have signatures for it."
-  async transferb() {
+  async transfer() {
     const { activeUser } = this.props.ual
     const {
       activeUser: { accountName }
@@ -289,80 +289,80 @@ class App extends React.Component<TransactionProps, TransactionState> {
   }
 
   // BUG: it shouldn't use eosjs without Scatter
-  async transfer({ to, quantity, memo }) {
-    try {
-      const {
-        activeUser: { accountName }
-      } = this.state
-      const from = accountName
+  // async transfer({ to, quantity, memo }) {
+  //   try {
+  //     const {
+  //       activeUser: { accountName }
+  //     } = this.state
+  //     const from = accountName
 
-      // NOTE: move me in utils ??
-      function symbolToContract(quantity) {
-        const symbolWanted = quantity.split(" ")[1]
-        const found = supportedTokens
-          .map(el => el.split("-"))
-          .filter(([contract, symbol]) => {
-            return symbolWanted === symbol
-          })
-        return found[0]
-          ? found[0][0]
-          : new Error(`Token ${symbolWanted} not supported`)
-      }
+  //     // NOTE: move me in utils ??
+  //     function symbolToContract(quantity) {
+  //       const symbolWanted = quantity.split(" ")[1]
+  //       const found = supportedTokens
+  //         .map(el => el.split("-"))
+  //         .filter(([contract, symbol]) => {
+  //           return symbolWanted === symbol
+  //         })
+  //       return found[0]
+  //         ? found[0][0]
+  //         : new Error(`Token ${symbolWanted} not supported`)
+  //     }
 
-      const contract = symbolToContract(quantity)
+  //     const contract = symbolToContract(quantity)
 
-      const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
-        networkConfig.RPC_PORT
-      }`
-      const rpc = new JsonRpc(net, { fetch })
-      const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
-      const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
-      const api = new Api({
-        rpc,
-        signatureProvider,
-        textDecoder: new TextDecoder(),
-        textEncoder: new TextEncoder()
-      })
+  //     const net = `${networkConfig.RPC_PROTOCOL}://${networkConfig.RPC_HOST}:${
+  //       networkConfig.RPC_PORT
+  //     }`
+  //     const rpc = new JsonRpc(net, { fetch })
+  //     const defaultPrivateKey = process.env.REACT_APP_PRIVATEKEY // testborrow11
+  //     const signatureProvider = new JsSignatureProvider([defaultPrivateKey])
+  //     const api = new Api({
+  //       rpc,
+  //       signatureProvider,
+  //       textDecoder: new TextDecoder(),
+  //       textEncoder: new TextEncoder()
+  //     })
 
-      this.setState({ ...this.state, loading: true })
-      console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
-      const result = await api.transact(
-        {
-          actions: [
-            {
-              account: contract,
-              name: "transfer",
-              authorization: [
-                {
-                  actor: from,
-                  permission: "active"
-                }
-              ],
-              data: {
-                from: from,
-                to: to,
-                quantity: quantity,
-                memo: memo
-              }
-            }
-          ]
-        },
-        {
-          blocksBehind: 3,
-          expireSeconds: 30
-        }
-      )
-      console.dir(result)
-      // HACK: the tx isn't immediately effective
-      setTimeout(() => {
-        this.updateAccountBalances()
-        this.setState({ ...this.state, loading: false })
-      }, 1000)
-    } catch (error) {
-      this.setState({ ...this.state, loading: false })
-      console.error("ERROR: ", error)
-    }
-  }
+  //     this.setState({ ...this.state, loading: true })
+  //     console.warn(`TX: ${net} ${contract} ${from} ${to} ${quantity} ${memo}`)
+  //     const result = await api.transact(
+  //       {
+  //         actions: [
+  //           {
+  //             account: contract,
+  //             name: "transfer",
+  //             authorization: [
+  //               {
+  //                 actor: from,
+  //                 permission: "active"
+  //               }
+  //             ],
+  //             data: {
+  //               from: from,
+  //               to: to,
+  //               quantity: quantity,
+  //               memo: memo
+  //             }
+  //           }
+  //         ]
+  //       },
+  //       {
+  //         blocksBehind: 3,
+  //         expireSeconds: 30
+  //       }
+  //     )
+  //     console.dir(result)
+  //     // HACK: the tx isn't immediately effective
+  //     setTimeout(() => {
+  //       this.updateAccountBalances()
+  //       this.setState({ ...this.state, loading: false })
+  //     }, 1000)
+  //   } catch (error) {
+  //     this.setState({ ...this.state, loading: false })
+  //     console.error("ERROR: ", error)
+  //   }
+  // }
 
   // BUG: it shouldn't use eosjs without Scatter
   async assetout({ quantity, memo }) {
