@@ -12259,10 +12259,9 @@ ual-reactjs-renderer@^0.1.1:
     styled-components "^4.1.3"
     universal-authenticator-library "^0.1.0"
 
-ual-scatter@^0.1.1:
+"ual-scatter@git://github.com/EOSIO/ual-scatter.git#develop":
   version "0.1.1"
-  resolved "https://registry.yarnpkg.com/ual-scatter/-/ual-scatter-0.1.1.tgz#f789ad786ee9fc2ba747029a182ed63587028b28"
-  integrity sha512-gcQrQdleQSYlPrZcxzU8DVJQReqLO2v1zoOpMspCMCdb0MZF2zIT2Gzp7udrbO1U+5s/no8YVzKnMtjCPEepzw==
+  resolved "git://github.com/EOSIO/ual-scatter.git#1f7db0038fcda47578ce440a20f4772914713415"
   dependencies:
     eosjs "20.0.0"
     eosjs-ecc "4.0.4"

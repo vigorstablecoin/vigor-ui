@@ -171,9 +171,9 @@ class TransactionApp extends React.Component<
           ],
           data: {
             from: accountName,
-            to: 'eosio.token', 
+            to: 'eosusdcom111', 
             quantity: "0.0001 EOS",
-            memo: "insurance"
+            memo: "support"
           }
         }
       ]

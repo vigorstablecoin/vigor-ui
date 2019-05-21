@@ -8,6 +8,7 @@
     "predeploy": "REACT_APP_CHAIN_NAME=Mainnet react-scripts build",
     "deploy": "gh-pages -d build",
     "build-storybook": "build-storybook -s public",
+    "build-ual-scatter": "cd node_modules/ual-scatter && yarn && yarn build",
     "lint": "tslint -c tslint.json 'src/**/*.{ts,tsx}'",
     "now-build": "node ../../scripts/bootstrap --core && yarn run build-storybook --quiet",
     "storybook": "start-storybook -p 9010 -s public",
@@ -28,7 +29,7 @@
     "scatterjs-core": "^2.7.16",
     "scatterjs-plugin-eosjs": "^1.5.1",
     "ual-reactjs-renderer": "^0.1.1",
-    "ual-scatter": "^0.1.1"
+    "ual-scatter": "git://github.com/EOSIO/ual-scatter.git#develop"
   },
   "devDependencies": {
     "@storybook/addon-actions": "5.1.0-alpha.9",

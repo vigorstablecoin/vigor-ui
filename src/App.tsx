@@ -213,7 +213,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
 
       const res = await this.state.rpc.get_table_rows({
         code: "eosusdcom111",
-        scope: "UZD",
+        scope: "eosusdcom111",
         table: "globals"
       })
       this.setState({
@@ -270,7 +270,7 @@ class App extends React.Component<TransactionProps, TransactionState> {
           ],
           data: {
             from: accountName,
-            to: "eosio.token",
+            to: "eosusdcom111",
             quantity: "0.0001 EOS",
             memo: "support"
           }
